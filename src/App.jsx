@@ -750,74 +750,209 @@ function Gallery() {
 
 function RSVP() {
   const ref = useReveal();
-  const [form, setForm] = useState({ name: "", attending: "", message: "" });
-  const [submitted, setSubmitted] = useState(false);
+  const [name, setName]           = useState("");
   const [attending, setAttending] = useState(null);
+  const [guests, setGuests]       = useState("1");
+  const [message, setMessage]     = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending]     = useState(false);
+  const [error, setError]         = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name) return;
-    setSubmitted(true);
+    if (!name.trim()) { setError("Please enter your name."); return; }
+    if (!attending)   { setError("Please let us know if you'll attend."); return; }
+    setError("");
+    setSending(true);
+
+    const payload = new FormData();
+    payload.append("name",       name.trim());
+    payload.append("attendance", attending === "yes" ? "Joyfully Accepts" : "Regretfully Declines");
+    payload.append("guests",     attending === "yes" ? guests : "0");
+    payload.append("message",    message.trim() || "—");
+    // FormSubmit hidden control fields
+    payload.append("_subject",   `Wedding RSVP — ${name.trim()}`);
+    payload.append("_captcha",   "false");
+    payload.append("_template",  "table");
+
+    try {
+      const res = await fetch("https://formsubmit.co/alextoms807@gmail.com", {
+        method: "POST",
+        body: payload,
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setSending(false);
+    }
   };
+
+  // ── field style helpers ──
+  const fieldLabel = {
+    fontSize: "9px", letterSpacing: "0.35em", color: "rgba(42,42,42,0.62)",
+    textTransform: "uppercase", display: "block", marginBottom: "10px",
+    fontFamily: "Montserrat",
+  };
+
+  const toggleBtn = (opt) => ({
+    flex: 1, padding: "13px 6px",
+    border: `1px solid ${attending === opt ? "#C8A46B" : "rgba(200,164,107,0.28)"}`,
+    background: attending === opt ? "rgba(200,164,107,0.09)" : "transparent",
+    color: attending === opt ? "#C8A46B" : "rgba(42,42,42,0.62)",
+    fontFamily: "Montserrat", fontSize: "10px", letterSpacing: "0.18em",
+    textTransform: "uppercase", cursor: "pointer",
+    transition: "all 0.28s cubic-bezier(0.22,1,0.36,1)", borderRadius: "0",
+    WebkitTapHighlightColor: "transparent",
+  });
 
   return (
     <section className="section-pad bg-ivory" style={{ textAlign: "center", backgroundColor: "#F8F4EE" }}>
       <div style={{ maxWidth: "480px", margin: "0 auto" }}>
         <div ref={ref} className="reveal">
-          <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "16px" }}>Kindly Reply</p>
+
+          {/* Heading */}
+          <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "16px" }}>
+            Kindly Reply
+          </p>
           <h2 className="font-serif" style={{ fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 300, fontStyle: "italic", color: "#2A2A2A" }}>RSVP</h2>
           <GoldDivider />
           <p className="font-sans" style={{ fontSize: "12px", color: "rgba(42,42,42,0.62)", marginTop: "20px", letterSpacing: "0.05em", lineHeight: 1.8 }}>
             Please respond by May 10, 2026
           </p>
 
+          {/* ── Success state ── */}
           {submitted ? (
-            <div style={{ marginTop: "48px", padding: "40px 24px", border: "1px solid rgba(200,164,107,0.35)", borderRadius: "2px" }}>
+            <div style={{
+              marginTop: "48px", padding: "44px 28px",
+              border: "1px solid rgba(200,164,107,0.32)", borderRadius: "2px",
+              animation: "fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) forwards",
+            }}>
               <Ornament />
-              <p className="font-serif" style={{ fontSize: "clamp(18px, 5vw, 26px)", fontStyle: "italic", fontWeight: 400, margin: "20px 0", color: "#2A2A2A" }}>
-                Thank you, {form.name}!
+              <p className="font-serif" style={{ fontSize: "clamp(20px, 5vw, 28px)", fontStyle: "italic", fontWeight: 400, margin: "20px 0 12px", color: "#2A2A2A" }}>
+                Thank you, {name}!
               </p>
-              <p className="font-sans" style={{ fontSize: "13px", color: "rgba(42,42,42,0.65)", letterSpacing: "0.05em", lineHeight: 1.7 }}>
-                {attending === "yes" ? "We can't wait to celebrate with you." : "We'll miss you and thank you for your warm wishes."}
+              <div className="gold-divider" style={{ margin: "0 auto 20px" }} />
+              <p className="font-sans" style={{ fontSize: "13px", color: "rgba(42,42,42,0.68)", letterSpacing: "0.04em", lineHeight: 1.85 }}>
+                {attending === "yes"
+                  ? `We're thrilled you'll be joining us. We can't wait to celebrate this beautiful day with you.`
+                  : `We'll miss you dearly. Thank you so much for your warm wishes — they mean the world to us.`}
               </p>
+              <p className="font-script" style={{ fontSize: "32px", color: "#C8A46B", marginTop: "28px" }}>Alex & Sneha</p>
             </div>
+
           ) : (
-            <form onSubmit={handleSubmit} style={{ marginTop: "48px", textAlign: "left", display: "flex", flexDirection: "column", gap: "32px" }}>
+
+            /* ── Form ── */
+            <form
+              onSubmit={handleSubmit}
+              style={{ marginTop: "48px", textAlign: "left", display: "flex", flexDirection: "column", gap: "30px" }}
+            >
+              {/* Name */}
               <div>
-                <input className="rsvp-input" placeholder="Your Full Name" value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                <label className="font-sans" style={fieldLabel}>Full Name</label>
+                <input
+                  className="rsvp-input"
+                  type="text"
+                  placeholder="Your full name"
+                  value={name}
+                  required
+                  onChange={e => setName(e.target.value)}
+                />
               </div>
+
+              {/* Attendance toggle */}
               <div>
-                <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.3em", color: "rgba(42,42,42,0.62)", textTransform: "uppercase", marginBottom: "16px" }}>Will you attend?</p>
-                <div style={{ display: "flex", gap: "12px" }}>
+                <label className="font-sans" style={fieldLabel}>Will you attend?</label>
+                <div style={{ display: "flex", gap: "10px" }}>
                   {["yes", "no"].map(opt => (
-                    <button key={opt} type="button" onClick={() => { setAttending(opt); setForm(f => ({ ...f, attending: opt })); }}
-                      style={{
-                        flex: 1, padding: "13px 8px",
-                        border: `1px solid ${attending === opt ? "#C8A46B" : "rgba(200,164,107,0.3)"}`,
-                        background: attending === opt ? "rgba(200,164,107,0.1)" : "transparent",
-                        color: attending === opt ? "#C8A46B" : "rgba(42,42,42,0.65)",
-                        fontFamily: "Montserrat", fontSize: "10px", letterSpacing: "0.2em",
-                        textTransform: "uppercase", cursor: "pointer", transition: "all 0.3s ease", borderRadius: "0"
-                      }}>
+                    <button key={opt} type="button"
+                      onClick={() => setAttending(opt)}
+                      style={toggleBtn(opt)}>
                       {opt === "yes" ? "Joyfully Accept" : "Regretfully Decline"}
                     </button>
                   ))}
                 </div>
               </div>
+
+              {/* Guest count — only shown when attending */}
+              {attending === "yes" && (
+                <div style={{ animation: "fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) forwards" }}>
+                  <label className="font-sans" style={fieldLabel}>Number of Guests (including yourself)</label>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    {["1", "2", "3", "4"].map(n => (
+                      <button key={n} type="button"
+                        onClick={() => setGuests(n)}
+                        style={{
+                          width: "48px", height: "48px",
+                          border: `1px solid ${guests === n ? "#C8A46B" : "rgba(200,164,107,0.28)"}`,
+                          background: guests === n ? "rgba(200,164,107,0.09)" : "transparent",
+                          color: guests === n ? "#C8A46B" : "rgba(42,42,42,0.62)",
+                          fontFamily: "Cormorant Garamond", fontSize: "18px", fontStyle: "italic",
+                          cursor: "pointer", transition: "all 0.25s ease", borderRadius: "0",
+                          WebkitTapHighlightColor: "transparent",
+                        }}>
+                        {n}
+                      </button>
+                    ))}
+                    <button type="button"
+                      onClick={() => setGuests("5+")}
+                      style={{
+                        padding: "0 16px", height: "48px",
+                        border: `1px solid ${guests === "5+" ? "#C8A46B" : "rgba(200,164,107,0.28)"}`,
+                        background: guests === "5+" ? "rgba(200,164,107,0.09)" : "transparent",
+                        color: guests === "5+" ? "#C8A46B" : "rgba(42,42,42,0.62)",
+                        fontFamily: "Montserrat", fontSize: "9px", letterSpacing: "0.2em",
+                        cursor: "pointer", transition: "all 0.25s ease", borderRadius: "0",
+                        WebkitTapHighlightColor: "transparent",
+                      }}>
+                      5 +
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Message */}
               <div>
-                <textarea className="rsvp-input" placeholder="A message for the couple..." value={form.message}
-                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-                  style={{ resize: "none", minHeight: "80px", display: "block", lineHeight: 1.8 }} />
+                <label className="font-sans" style={fieldLabel}>A message for the couple</label>
+                <textarea
+                  className="rsvp-input"
+                  placeholder="Share your wishes..."
+                  value={message}
+                  onChange={e => setMessage(e.target.value)}
+                  style={{ resize: "none", minHeight: "88px", display: "block", lineHeight: 1.85 }}
+                />
               </div>
-              <button type="submit" className="btn-gold"
-                style={{ padding: "16px", width: "100%", cursor: "pointer", background: "transparent", borderRadius: "0", fontFamily: "Montserrat" }}>
+
+              {/* Error */}
+              {error && (
+                <p className="font-sans" style={{ fontSize: "11px", color: "#B07A4A", letterSpacing: "0.06em", lineHeight: 1.7, marginTop: "-10px" }}>
+                  {error}
+                </p>
+              )}
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="btn-gold"
+                disabled={sending}
+                style={{
+                  padding: "17px", width: "100%", cursor: sending ? "wait" : "pointer",
+                  background: "transparent", borderRadius: "0", fontFamily: "Montserrat",
+                  opacity: sending ? 0.7 : 1, transition: "opacity 0.3s ease",
+                }}>
                 <span className="font-sans" style={{ fontSize: "11px", letterSpacing: "0.3em", textTransform: "uppercase" }}>
-                  Send Response
+                  {sending ? "Sending…" : "Send Response"}
                 </span>
               </button>
             </form>
           )}
+
         </div>
       </div>
     </section>
