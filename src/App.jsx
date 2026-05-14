@@ -349,133 +349,6 @@ const styles = `
   .tracking-widest { letter-spacing: 0.25em; }
   .tracking-wide   { letter-spacing: 0.15em; }
 
-  /* ── Music toggle button ── */
-  @keyframes musicPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(200,164,107,0); }
-    50%       { box-shadow: 0 0 0 6px rgba(200,164,107,0.18); }
-  }
-  @keyframes barDance {
-    0%, 100% { transform: scaleY(0.4); }
-    50%       { transform: scaleY(1);   }
-  }
-
-  .music-btn {
-    position: fixed;
-    bottom: 28px;
-    right: 24px;
-    z-index: 100;
-    width: 48px;
-    height: 48px;
-    border: 1px solid rgba(200,164,107,0.6);
-    background: rgba(248,244,238,0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.3s ease, border-color 0.3s ease;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 20px rgba(42,42,42,0.12);
-  }
-
-  .music-btn.playing {
-    background: rgba(200,164,107,0.15);
-    border-color: #C8A46B;
-    animation: musicPulse 2.4s ease-in-out infinite;
-  }
-
-  .music-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 2.5px;
-    height: 16px;
-  }
-
-  .music-bar {
-    width: 3px;
-    background: #C8A46B;
-    border-radius: 2px;
-    transform-origin: bottom;
-    transition: transform 0.2s ease;
-  }
-
-  .playing .music-bar:nth-child(1) { animation: barDance 0.8s ease-in-out infinite 0s; }
-  .playing .music-bar:nth-child(2) { animation: barDance 0.8s ease-in-out infinite 0.15s; }
-  .playing .music-bar:nth-child(3) { animation: barDance 0.8s ease-in-out infinite 0.3s; }
-  .playing .music-bar:nth-child(4) { animation: barDance 0.8s ease-in-out infinite 0.1s; }
-
-  /* ── Calendar modal ── */
-  @keyframes modalIn {
-    from { opacity: 0; transform: translate3d(0, 16px, 0); }
-    to   { opacity: 1; transform: translate3d(0, 0, 0); }
-  }
-
-  .cal-modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(42,42,42,0.55);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 200;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 0;
-    animation: fadeIn 0.3s ease forwards;
-  }
-
-  @media (min-width: 640px) {
-    .cal-modal-backdrop {
-      align-items: center;
-    }
-  }
-
-  .cal-modal {
-    background: #F8F4EE;
-    width: 100%;
-    max-width: 480px;
-    border-radius: 12px 12px 0 0;
-    padding: 40px 28px 48px;
-    animation: modalIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
-    position: relative;
-  }
-
-  @media (min-width: 640px) {
-    .cal-modal {
-      border-radius: 4px;
-      padding: 48px 40px;
-    }
-  }
-
-  .cal-option {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 0;
-    border-bottom: 1px solid rgba(200,164,107,0.18);
-    cursor: pointer;
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .cal-option:last-child { border-bottom: none; }
-  .cal-option:hover { opacity: 0.7; }
-
-  .cal-icon {
-    width: 36px;
-    height: 36px;
-    border: 1px solid rgba(200,164,107,0.35);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: rgba(200,164,107,0.06);
-  }
-
   /* ── Dark-mode override — nuclear option for stubborn browsers ── */
   @media (prefers-color-scheme: dark) {
     html, body {
@@ -487,8 +360,6 @@ const styles = `
     .rsvp-input  { color: #2A2A2A !important; -webkit-text-fill-color: #2A2A2A; }
     .bg-beige    { background-color: #EFE7DC !important; }
     .bg-dark     { background-color: #2A2A2A !important; }
-    .cal-modal   { background: #F8F4EE !important; color: #2A2A2A !important; }
-    .music-btn   { background: rgba(248,244,238,0.92) !important; }
   }
 `;
 
@@ -955,74 +826,24 @@ function RSVP() {
             Please respond by May 10, 2026
           </p>
 
-          {/* ── Success modal overlay ── */}
+          {/* ── Success state ── */}
           {submitted ? (
-            <div
-              style={{
-                position: "fixed", inset: 0, zIndex: 300,
-                background: "rgba(42,42,42,0.7)",
-                backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: "24px",
-                animation: "fadeIn 0.4s ease forwards",
-              }}
-              onClick={() => setSubmitted(false)}
-            >
-              <div
-                onClick={e => e.stopPropagation()}
-                style={{
-                  background: "#F8F4EE",
-                  maxWidth: "400px", width: "100%",
-                  padding: "52px 36px 44px",
-                  borderRadius: "2px",
-                  textAlign: "center",
-                  position: "relative",
-                  animation: "modalIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards",
-                  border: "1px solid rgba(200,164,107,0.25)",
-                }}
-              >
-                {/* Gold ring animation */}
-                <div style={{
-                  width: "64px", height: "64px",
-                  borderRadius: "50%",
-                  border: "1px solid rgba(200,164,107,0.5)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  margin: "0 auto 24px",
-                  background: "rgba(200,164,107,0.07)",
-                }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="#C8A46B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                </div>
-
-                <p className="font-sans" style={{ fontSize: "9px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "16px" }}>
-                  Response Received
-                </p>
-                <p className="font-serif" style={{ fontSize: "clamp(22px, 6vw, 30px)", fontStyle: "italic", fontWeight: 400, color: "#2A2A2A", lineHeight: 1.4 }}>
-                  Thank you,<br />{name}!
-                </p>
-                <div className="gold-divider" style={{ margin: "20px auto" }} />
-                <p className="font-sans" style={{ fontSize: "13px", color: "rgba(42,42,42,0.65)", letterSpacing: "0.03em", lineHeight: 1.85 }}>
-                  {attending === "yes"
-                    ? "We're overjoyed you'll be celebrating with us. See you on May 24th! ✨"
-                    : "We'll miss you dearly. Thank you for your warm wishes — they mean everything to us."}
-                </p>
-                <p className="font-script" style={{ fontSize: "34px", color: "#C8A46B", marginTop: "24px", marginBottom: "28px" }}>
-                  Alex & Sneha
-                </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  style={{
-                    fontFamily: "Montserrat", fontSize: "9px", letterSpacing: "0.3em",
-                    textTransform: "uppercase", color: "rgba(42,42,42,0.4)",
-                    background: "none", border: "none", cursor: "pointer",
-                    padding: "8px", WebkitTapHighlightColor: "transparent",
-                  }}
-                >
-                  Close
-                </button>
-              </div>
+            <div style={{
+              marginTop: "48px", padding: "44px 28px",
+              border: "1px solid rgba(200,164,107,0.32)", borderRadius: "2px",
+              animation: "fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) forwards",
+            }}>
+              <Ornament />
+              <p className="font-serif" style={{ fontSize: "clamp(20px, 5vw, 28px)", fontStyle: "italic", fontWeight: 400, margin: "20px 0 12px", color: "#2A2A2A" }}>
+                Thank you, {name}!
+              </p>
+              <div className="gold-divider" style={{ margin: "0 auto 20px" }} />
+              <p className="font-sans" style={{ fontSize: "13px", color: "rgba(42,42,42,0.68)", letterSpacing: "0.04em", lineHeight: 1.85 }}>
+                {attending === "yes"
+                  ? `We're thrilled you'll be joining us. We can't wait to celebrate this beautiful day with you.`
+                  : `We'll miss you dearly. Thank you so much for your warm wishes — they mean the world to us.`}
+              </p>
+              <p className="font-script" style={{ fontSize: "32px", color: "#C8A46B", marginTop: "28px" }}>Alex & Sneha</p>
             </div>
 
           ) : (
@@ -1138,262 +959,6 @@ function RSVP() {
   );
 }
 
-// ─── MUSIC TOGGLE ────────────────────────────────────────────────
-// Royalty-free romantic piano from Pixabay CDN (reliable, no CORS issues)
-const MUSIC_URL = "https://cdn.pixabay.com/audio/2024/07/17/audio_d1a41f2fce.mp3";
-
-function MusicButton() {
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef(null);
-  const fadeRef  = useRef(null);
-
-  // Create Audio lazily on first user gesture (required by iOS Safari)
-  const getAudio = () => {
-    if (!audioRef.current) {
-      const a = new Audio();
-      a.src    = MUSIC_URL;
-      a.loop   = true;
-      a.volume = 0;
-      a.crossOrigin = "anonymous";
-      audioRef.current = a;
-    }
-    return audioRef.current;
-  };
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-      if (fadeRef.current)  cancelAnimationFrame(fadeRef.current);
-    };
-  }, []);
-
-  const fadeVolume = (audio, target, duration = 1000) => {
-    if (fadeRef.current) cancelAnimationFrame(fadeRef.current);
-    const start     = audio.volume;
-    const delta     = target - start;
-    const startTime = performance.now();
-    const step = (now) => {
-      const t = Math.min((now - startTime) / duration, 1);
-      // ease-out cubic
-      const ease = 1 - Math.pow(1 - t, 3);
-      audio.volume = Math.max(0, Math.min(1, start + delta * ease));
-      if (t < 1) {
-        fadeRef.current = requestAnimationFrame(step);
-      } else {
-        fadeRef.current = null;
-        if (target === 0) audio.pause();
-      }
-    };
-    fadeRef.current = requestAnimationFrame(step);
-  };
-
-  const toggle = () => {
-    const audio = getAudio();
-    if (playing) {
-      fadeVolume(audio, 0);
-      setPlaying(false);
-    } else {
-      // Reset volume before play so fade-in is smooth
-      audio.volume = 0;
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => { fadeVolume(audio, 0.35); setPlaying(true); })
-          .catch((err) => {
-            // Autoplay blocked — try once more after a tick
-            setTimeout(() => {
-              audio.play().then(() => { fadeVolume(audio, 0.35); setPlaying(true); }).catch(() => {});
-            }, 100);
-          });
-      }
-    }
-  };
-
-  return (
-    <button
-      className={`music-btn${playing ? " playing" : ""}`}
-      onClick={toggle}
-      aria-label={playing ? "Pause music" : "Play music"}
-      title={playing ? "Pause music" : "Play romantic music"}
-    >
-      {playing ? (
-        <div className="music-bars">
-          <div className="music-bar" style={{ height: "10px" }} />
-          <div className="music-bar" style={{ height: "16px" }} />
-          <div className="music-bar" style={{ height: "8px" }}  />
-          <div className="music-bar" style={{ height: "14px" }} />
-        </div>
-      ) : (
-        /* Music note icon when paused */
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-          stroke="#C8A46B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 18V5l12-2v13"/>
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-        </svg>
-      )}
-    </button>
-  );
-}
-
-// ─── ADD TO CALENDAR ──────────────────────────────────────────────
-
-function AddToCalendar() {
-  const [open, setOpen] = useState(false);
-
-  // Event details
-  const eventTitle    = "Alex & Sneha's Wedding";
-  const startDate     = "20260524T161500";   // 4:15 PM IST = UTC+5:30 → 10:45 UTC, but we use local for ICS
-  const endDate       = "20260524T220000";
-  const location      = "St. Augustine's Church, Ramapuram; Reception: Mandapathil Heritage Home & Party Hall";
-  const description   = "Ceremony at 4:15 PM — St. Augustine's Church, Ramapuram\\nReception at 6:00 PM — Mandapathil Heritage Home & Party Hall";
-
-  const googleUrl = () => {
-    const p = new URLSearchParams({
-      action: "TEMPLATE",
-      text: eventTitle,
-      dates: `${startDate}/${endDate}`,
-      details: description.replace(/\\n/g, "\n"),
-      location,
-    });
-    return `https://calendar.google.com/calendar/render?${p}`;
-  };
-
-  const icsContent = () => {
-    return [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//AlexSnehaWedding//EN",
-      "BEGIN:VEVENT",
-      `DTSTART;TZID=Asia/Kolkata:${startDate}`,
-      `DTEND;TZID=Asia/Kolkata:${endDate}`,
-      `SUMMARY:${eventTitle}`,
-      `DESCRIPTION:${description}`,
-      `LOCATION:${location}`,
-      "STATUS:CONFIRMED",
-      "END:VEVENT",
-      "END:VCALENDAR",
-    ].join("\r\n");
-  };
-
-  const downloadIcs = () => {
-    const blob = new Blob([icsContent()], { type: "text/calendar;charset=utf-8" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href     = url;
-    a.download = "AlexSnehaWedding.ics";
-    a.click();
-    URL.revokeObjectURL(url);
-    setOpen(false);
-  };
-
-  const options = [
-    {
-      label: "Google Calendar",
-      sub: "Opens in browser",
-      href: googleUrl(),
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A46B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      ),
-    },
-    {
-      label: "Apple Calendar / Outlook",
-      sub: "Downloads .ics file",
-      onClick: downloadIcs,
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A46B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      {/* Trigger button — placed inside WeddingDetails via prop drilling avoided; standalone section */}
-      <div style={{ textAlign: "center", padding: "0 24px 64px", backgroundColor: "#EFE7DC" }}>
-        <button
-          onClick={() => setOpen(true)}
-          style={{
-            display: "inline-flex", alignItems: "center", gap: "10px",
-            border: "1px solid rgba(200,164,107,0.55)",
-            padding: "14px 32px",
-            fontFamily: "Montserrat", fontSize: "10px", letterSpacing: "0.22em",
-            textTransform: "uppercase", color: "#C8A46B",
-            background: "rgba(248,244,238,0.6)",
-            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-            cursor: "pointer", borderRadius: "0",
-            transition: "background 0.3s ease, color 0.3s ease",
-            WebkitTapHighlightColor: "transparent",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#C8A46B"; e.currentTarget.style.color = "#F8F4EE"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "rgba(248,244,238,0.6)"; e.currentTarget.style.color = "#C8A46B"; }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/>
-          </svg>
-          Add to Calendar
-        </button>
-      </div>
-
-      {/* Modal */}
-      {open && (
-        <div className="cal-modal-backdrop" onClick={() => setOpen(false)}>
-          <div className="cal-modal" onClick={e => e.stopPropagation()}>
-            {/* Close */}
-            <button onClick={() => setOpen(false)} style={{
-              position: "absolute", top: 16, right: 16,
-              background: "none", border: "none", cursor: "pointer",
-              color: "rgba(42,42,42,0.4)", fontSize: "20px", lineHeight: 1,
-              padding: "4px", WebkitTapHighlightColor: "transparent",
-            }}>✕</button>
-
-            <p className="font-sans" style={{ fontSize: "9px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "12px" }}>
-              Save the Date
-            </p>
-            <p className="font-serif" style={{ fontSize: "clamp(20px, 5vw, 28px)", fontStyle: "italic", fontWeight: 300, color: "#2A2A2A", marginBottom: "4px" }}>
-              Add to Calendar
-            </p>
-            <div className="gold-divider" style={{ margin: "16px 0" }} />
-            <p className="font-sans" style={{ fontSize: "11px", color: "rgba(42,42,42,0.55)", lineHeight: 1.7, marginBottom: "24px" }}>
-              May 24, 2026 · Ceremony 4:15 PM · Reception 6:00 PM
-            </p>
-
-            {options.map(opt => (
-              opt.href ? (
-                <a key={opt.label} href={opt.href} target="_blank" rel="noopener noreferrer"
-                  className="cal-option" onClick={() => setOpen(false)}>
-                  <div className="cal-icon">{opt.icon}</div>
-                  <div>
-                    <p className="font-sans" style={{ fontSize: "12px", color: "#2A2A2A", letterSpacing: "0.04em" }}>{opt.label}</p>
-                    <p className="font-sans" style={{ fontSize: "10px", color: "rgba(42,42,42,0.45)", marginTop: "2px" }}>{opt.sub}</p>
-                  </div>
-                  <svg style={{ marginLeft: "auto", opacity: 0.3 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
-                </a>
-              ) : (
-                <div key={opt.label} className="cal-option" onClick={opt.onClick}>
-                  <div className="cal-icon">{opt.icon}</div>
-                  <div>
-                    <p className="font-sans" style={{ fontSize: "12px", color: "#2A2A2A", letterSpacing: "0.04em" }}>{opt.label}</p>
-                    <p className="font-sans" style={{ fontSize: "10px", color: "rgba(42,42,42,0.45)", marginTop: "2px" }}>{opt.sub}</p>
-                  </div>
-                  <svg style={{ marginLeft: "auto", opacity: 0.3 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
-                </div>
-              )
-            ))}
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
 // ─── FOOTER ──────────────────────────────────────────────────────
 
 function Footer() {
@@ -1448,13 +1013,11 @@ export default function App() {
         <div ref={detailsRef}>
           <WeddingDetails />
         </div>
-        <AddToCalendar />
         <Countdown />
         <Gallery />
         <RSVP />
         <Footer />
       </main>
-      <MusicButton />
     </>
   );
 }
