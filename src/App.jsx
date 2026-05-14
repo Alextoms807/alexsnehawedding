@@ -12,23 +12,53 @@ const FONTS = `
 `;
 
 const styles = `
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  
-  html { scroll-behavior: smooth; }
-  
+  /* ── Force light-mode color scheme — prevents iOS Safari dark inversion ── */
+  :root {
+    color-scheme: light only;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    /* Force all elements to respect explicit colors, never auto-invert */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Explicit light background at root level */
+    background-color: #F8F4EE;
+  }
+
   body {
-    background: #F8F4EE;
-    color: #2A2A2A;
+    background: #F8F4EE !important;
+    color: #2A2A2A !important;
     font-family: 'Montserrat', sans-serif;
     font-weight: 300;
     overflow-x: hidden;
+    /* Prevent iOS dark mode from overriding backgrounds */
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .font-script { font-family: 'Great Vibes', cursive; }
-  .font-serif { font-family: 'Cormorant Garamond', serif; }
-  .font-sans { font-family: 'Montserrat', sans-serif; }
+  /* ── Forced color classes — immune to dark mode ── */
+  .font-script { font-family: 'Great Vibes', cursive; color: inherit; }
+  .font-serif   { font-family: 'Cormorant Garamond', serif; }
+  .font-sans    { font-family: 'Montserrat', sans-serif; }
 
-  /* Noise texture overlay */
+  /* Explicit dark-on-light text — never inverted */
+  .text-charcoal  { color: #2A2A2A !important; }
+  .text-charcoal-soft { color: #3A3530 !important; }
+  .text-gold      { color: #C8A46B !important; }
+  .text-cream     { color: #F8F4EE !important; }
+  .text-cream-soft { color: #F0EAE0 !important; }
+
+  /* Sections with explicit backgrounds — prevents dark-mode re-colouring */
+  .bg-ivory  { background-color: #F8F4EE !important; }
+  .bg-beige  { background-color: #EFE7DC !important; }
+  .bg-dark   { background-color: #2A2A2A !important; }
+
+  /* ── Noise texture overlay ── */
   .texture::before {
     content: '';
     position: absolute;
@@ -38,14 +68,13 @@ const styles = `
     z-index: 0;
   }
 
-  /* Gold divider */
+  /* ── Gold dividers ── */
   .gold-divider {
     width: 60px;
     height: 1px;
     background: linear-gradient(90deg, transparent, #C8A46B, transparent);
     margin: 0 auto;
   }
-
   .gold-divider-long {
     width: 120px;
     height: 1px;
@@ -53,61 +82,74 @@ const styles = `
     margin: 0 auto;
   }
 
-  /* Fade up animation */
+  /* ── Animations — GPU-composited (only transform + opacity) ── */
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(32px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translate3d(0, 28px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
   }
 
   @keyframes fadeIn {
     from { opacity: 0; }
-    to { opacity: 1; }
+    to   { opacity: 1; }
   }
 
   @keyframes slowFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
+    0%, 100% { transform: translate3d(0, 0px, 0); }
+    50%       { transform: translate3d(0, -8px, 0); }
   }
 
   @keyframes shimmer {
-    0% { background-position: -200% center; }
-    100% { background-position: 200% center; }
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
   }
 
   .animate-fade-up {
-    animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    /* Promote to own compositor layer */
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   .animate-fade-in {
     animation: fadeIn 1.5s ease forwards;
+    will-change: opacity;
   }
 
   .animate-float {
     animation: slowFloat 6s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
-  .delay-1 { animation-delay: 0.2s; opacity: 0; }
-  .delay-2 { animation-delay: 0.5s; opacity: 0; }
-  .delay-3 { animation-delay: 0.8s; opacity: 0; }
-  .delay-4 { animation-delay: 1.1s; opacity: 0; }
+  .delay-1 { animation-delay: 0.2s;  opacity: 0; }
+  .delay-2 { animation-delay: 0.45s; opacity: 0; }
+  .delay-3 { animation-delay: 0.7s;  opacity: 0; }
+  .delay-4 { animation-delay: 0.95s; opacity: 0; }
 
-  /* Scroll reveal */
+  /* ── Scroll reveal — GPU-friendly ── */
   .reveal {
     opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translate3d(0, 22px, 0);
+    transition:
+      opacity  0.85s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   .reveal.visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 
-  .reveal-delay-1 { transition-delay: 0.1s; }
-  .reveal-delay-2 { transition-delay: 0.25s; }
-  .reveal-delay-3 { transition-delay: 0.4s; }
+  .reveal-delay-1 { transition-delay: 0.08s; }
+  .reveal-delay-2 { transition-delay: 0.2s;  }
+  .reveal-delay-3 { transition-delay: 0.34s; }
 
-  /* Hero with real image */
+  /* ── Hero ── */
   .hero-section {
     position: relative;
     height: 100vh;
@@ -117,6 +159,7 @@ const styles = `
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    background-color: #1E1C19;
   }
 
   .hero-img-bg {
@@ -125,6 +168,9 @@ const styles = `
     background-size: cover;
     background-position: center top;
     will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     filter: brightness(0.62) saturate(0.85);
   }
 
@@ -133,27 +179,27 @@ const styles = `
     inset: 0;
     background: linear-gradient(
       to bottom,
-      rgba(42,42,42,0.25) 0%,
-      rgba(42,42,42,0.15) 40%,
-      rgba(42,42,42,0.55) 100%
+      rgba(30,28,25,0.28) 0%,
+      rgba(30,28,25,0.14) 40%,
+      rgba(30,28,25,0.58) 100%
     );
   }
 
-  /* Glassmorphism card */
+  /* ── Glassmorphism card ── */
   .glass-card {
-    background: rgba(248, 244, 238, 0.72);
+    background: rgba(248, 244, 238, 0.82) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(200, 164, 107, 0.3);
-    box-shadow: 0 8px 32px rgba(42, 42, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+    border: 1px solid rgba(200, 164, 107, 0.32);
+    box-shadow: 0 8px 32px rgba(42,42,42,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+    color: #2A2A2A !important;
   }
 
-  /* Gold button */
+  /* ── Gold button ── */
   .btn-gold {
     border: 1px solid #C8A46B;
-    color: #C8A46B;
+    color: #C8A46B !important;
     letter-spacing: 0.2em;
-    transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
   }
@@ -165,14 +211,15 @@ const styles = `
     background: #C8A46B;
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
   }
 
   .btn-gold:hover::before { transform: scaleX(1); }
-  .btn-gold:hover { color: #F8F4EE; }
+  .btn-gold:hover { color: #F8F4EE !important; }
   .btn-gold span { position: relative; z-index: 1; }
 
-  /* Photo parallax */
+  /* ── Parallax photo ── */
   .photo-wrap {
     overflow: hidden;
     border-radius: 2px;
@@ -180,19 +227,22 @@ const styles = `
 
   .photo-inner {
     will-change: transform;
-    transition: transform 0.1s linear;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Remove JS transition jank — let rAF drive it */
+    transition: none;
   }
 
-  /* Countdown */
+  /* ── Countdown numbers — forced dark ── */
   .countdown-num {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 400;
     font-style: italic;
     line-height: 1;
-    color: #2A2A2A;
+    color: #2A2A2A !important;
   }
 
-  /* Gallery */
+  /* ── Gallery ── */
   .gallery-item {
     overflow: hidden;
     border-radius: 2px;
@@ -201,7 +251,10 @@ const styles = `
   }
 
   .gallery-item img {
-    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -209,7 +262,9 @@ const styles = `
     display: block;
   }
 
-  .gallery-item:hover img { transform: scale(1.06); }
+  @media (hover: hover) {
+    .gallery-item:hover img { transform: scale(1.055); }
+  }
 
   .gallery-overlay {
     position: absolute;
@@ -218,33 +273,24 @@ const styles = `
     pointer-events: none;
   }
 
-  /* Gallery grid */
-  .gallery-grid {
-    display: grid;
-    gap: 10px;
-  }
+  /* ── Gallery grid ── */
+  .gallery-grid { display: grid; gap: 10px; }
 
   .gallery-grid-desktop {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
   }
 
-  .gallery-grid-featured {
-    grid-column: 1 / -1;
-  }
+  .gallery-grid-featured { grid-column: 1 / -1; }
 
   @media (min-width: 640px) {
-    .gallery-grid-desktop {
-      grid-template-columns: 5fr 4fr;
-    }
-    .gallery-grid-featured {
-      grid-column: auto;
-    }
+    .gallery-grid-desktop { grid-template-columns: 5fr 4fr; }
+    .gallery-grid-featured { grid-column: auto; }
   }
 
-  /* RSVP form */
+  /* ── RSVP form ── */
   .rsvp-input {
-    background: transparent;
+    background: transparent !important;
     border: none;
     border-bottom: 1px solid rgba(200,164,107,0.45);
     padding: 12px 0;
@@ -252,45 +298,69 @@ const styles = `
     font-family: 'Montserrat', sans-serif;
     font-weight: 300;
     font-size: 14px;
-    color: #2A2A2A;
+    color: #2A2A2A !important;
+    -webkit-text-fill-color: #2A2A2A;
     outline: none;
     transition: border-color 0.3s ease;
     letter-spacing: 0.05em;
+    /* Prevent iOS auto-styling of inputs */
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
   }
 
   .rsvp-input:focus { border-color: #C8A46B; }
-  .rsvp-input::placeholder { color: rgba(42,42,42,0.52); }
 
-  /* Scrollbar */
+  .rsvp-input::placeholder {
+    color: rgba(42,42,42,0.52);
+    -webkit-text-fill-color: rgba(42,42,42,0.52);
+    opacity: 1;
+  }
+
+  /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: #F8F4EE; }
   ::-webkit-scrollbar-thumb { background: #C8A46B; border-radius: 2px; }
 
-  /* Section spacing */
+  /* ── Section spacing ── */
   .section-pad { padding: 80px 24px; }
   @media (min-width: 768px) { .section-pad { padding: 120px 48px; } }
 
-  /* Hero name — on dark bg, needs white */
+  /* ── Hero name ── */
   .hero-name {
     font-size: clamp(52px, 18vw, 120px);
     line-height: 1;
-    color: #F8F4EE;
-    text-shadow: 0 2px 40px rgba(0,0,0,0.35);
+    color: #F8F4EE !important;
+    -webkit-text-fill-color: #F8F4EE;
+    text-shadow: 0 2px 40px rgba(0,0,0,0.4);
   }
 
   @media (max-width: 380px) { .hero-name { font-size: 44px; } }
 
-  /* Ornament */
+  /* ── Ornament ── */
   .ornament {
-    color: #C8A46B;
+    color: #C8A46B !important;
     opacity: 0.9;
     font-size: 18px;
     letter-spacing: 0.3em;
   }
 
-  /* Tag line tracking */
+  /* ── Tracking helpers ── */
   .tracking-widest { letter-spacing: 0.25em; }
-  .tracking-wide { letter-spacing: 0.15em; }
+  .tracking-wide   { letter-spacing: 0.15em; }
+
+  /* ── Dark-mode override — nuclear option for stubborn browsers ── */
+  @media (prefers-color-scheme: dark) {
+    html, body {
+      background: #F8F4EE !important;
+      color: #2A2A2A !important;
+    }
+    .glass-card  { background: rgba(248,244,238,0.88) !important; color: #2A2A2A !important; }
+    .countdown-num { color: #2A2A2A !important; }
+    .rsvp-input  { color: #2A2A2A !important; -webkit-text-fill-color: #2A2A2A; }
+    .bg-beige    { background-color: #EFE7DC !important; }
+    .bg-dark     { background-color: #2A2A2A !important; }
+  }
 `;
 
 // ─── HOOKS ───────────────────────────────────────────────────────
@@ -335,14 +405,25 @@ function useParallax(speed = 0.3) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const onScroll = () => {
+    // Disable parallax on touch devices — causes jank on iOS
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    let rafId = null;
+    let lastY = window.scrollY;
+    const tick = () => {
       const rect = el.getBoundingClientRect();
       const center = rect.top + rect.height / 2 - window.innerHeight / 2;
-      el.style.transform = `translateY(${center * speed}px)`;
+      el.style.transform = `translate3d(0, ${center * speed}px, 0)`;
+      rafId = null;
+    };
+    const onScroll = () => {
+      if (rafId === null) rafId = requestAnimationFrame(tick);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [speed]);
   return ref;
 }
@@ -418,7 +499,7 @@ function Hero({ onScroll }) {
 function InvitationMessage() {
   const ref = useReveal();
   return (
-    <section className="section-pad" style={{ textAlign: "center", maxWidth: "700px", margin: "0 auto" }}>
+    <section className="section-pad bg-ivory" style={{ textAlign: "center", maxWidth: "700px", margin: "0 auto", backgroundColor: "#F8F4EE" }}>
       <div ref={ref} className="reveal">
         <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "32px" }}>
           Our Invitation
@@ -496,11 +577,11 @@ function DetailCard({ label, items, delay }) {
 function WeddingDetails() {
   const ref = useReveal();
   return (
-    <section className="section-pad" style={{ background: "#EFE7DC", position: "relative" }}>
+    <section className="section-pad bg-beige" style={{ background: "#EFE7DC", position: "relative" }}>
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
         <div ref={ref} className="reveal" style={{ textAlign: "center", marginBottom: "56px" }}>
           <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "16px" }}>The Details</p>
-          <h2 className="font-serif" style={{ fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 300, fontStyle: "italic" }}>Join Us</h2>
+          <h2 className="font-serif" style={{ fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 300, fontStyle: "italic", color: "#2A2A2A" }}>Join Us</h2>
           <GoldDivider />
         </div>
         <div ref={ref} className="reveal" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
@@ -586,7 +667,7 @@ function Countdown() {
     { val: seconds, label: "Seconds" },
   ];
   return (
-    <section className="section-pad" style={{ textAlign: "center" }}>
+    <section className="section-pad bg-ivory" style={{ textAlign: "center", backgroundColor: "#F8F4EE" }}>
       <div style={{ maxWidth: "700px", margin: "0 auto" }}>
         <div ref={ref} className="reveal">
           <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "16px" }}>Until We Say I Do</p>
@@ -625,7 +706,7 @@ function Gallery() {
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
         <div ref={ref} className="reveal" style={{ textAlign: "center", marginBottom: "48px" }}>
           <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "16px" }}>Moments</p>
-          <h2 className="font-serif" style={{ fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 300, fontStyle: "italic" }}>Our Story</h2>
+          <h2 className="font-serif" style={{ fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 300, fontStyle: "italic", color: "#2A2A2A" }}>Our Story</h2>
           <GoldDivider />
         </div>
 
@@ -680,11 +761,11 @@ function RSVP() {
   };
 
   return (
-    <section className="section-pad" style={{ textAlign: "center" }}>
+    <section className="section-pad bg-ivory" style={{ textAlign: "center", backgroundColor: "#F8F4EE" }}>
       <div style={{ maxWidth: "480px", margin: "0 auto" }}>
         <div ref={ref} className="reveal">
           <p className="font-sans" style={{ fontSize: "10px", letterSpacing: "0.4em", color: "#C8A46B", textTransform: "uppercase", marginBottom: "16px" }}>Kindly Reply</p>
-          <h2 className="font-serif" style={{ fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 300, fontStyle: "italic" }}>RSVP</h2>
+          <h2 className="font-serif" style={{ fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 300, fontStyle: "italic", color: "#2A2A2A" }}>RSVP</h2>
           <GoldDivider />
           <p className="font-sans" style={{ fontSize: "12px", color: "rgba(42,42,42,0.62)", marginTop: "20px", letterSpacing: "0.05em", lineHeight: 1.8 }}>
             Please respond by May 10, 2026
@@ -788,7 +869,9 @@ export default function App() {
     <>
       <style>{FONTS}</style>
       <style>{styles}</style>
-      <main>
+      {/* Force light mode at the document level — prevents iOS dark-mode override */}
+      <meta name="color-scheme" content="light" />
+      <main style={{ backgroundColor: "#F8F4EE" }}>
         <Hero onScroll={scrollToDetails} />
         <InvitationMessage />
         <CouplePhoto />
